@@ -719,14 +719,23 @@ update: (output, domEl) ->
         $(domEl).find("#{cell}"  ).css("animation", "")
     # This function is for changing the colour of cell(s).
     colorChange = (cell, colour) ->
-        $(domEl).find("#{cell} s").css("border-bottom-color",   colour)
-        $(domEl).find("#{cell} b").css("border-top-color",      colour)
-        $(domEl).find("#{cell} s1").css("border-bottom-color",  colour)
-        $(domEl).find("#{cell} s2").css("border-bottom-color",  colour)
-        $(domEl).find("#{cell} b1").css("border-top-color",     colour)
-        $(domEl).find("#{cell} b2").css("border-top-color",     colour)
-        $(domEl).find("#{cell} b3").css("border-top-color",     colour)
-        $(domEl).find("#{cell}").css("background",              colour)
+        # use a jquery object as cell to apply colorChange only to that element
+        if $.type(cell) == "object"
+            $element = cell
+            cell = ""
+            $element.css("background",                          colour)
+        else
+            $element = $(domEl)
+            $element.find("#{cell}").css("background",          colour)
+
+        $element.find("#{cell} s").css("border-bottom-color",   colour)
+        $element.find("#{cell} b").css("border-top-color",      colour)
+        $element.find("#{cell} s1").css("border-bottom-color",  colour)
+        $element.find("#{cell} s2").css("border-bottom-color",  colour)
+        $element.find("#{cell} b1").css("border-top-color",     colour)
+        $element.find("#{cell} b2").css("border-top-color",     colour)
+        $element.find("#{cell} b3").css("border-top-color",     colour)
+
     # Display disk information
     diskDisplay = (cell, tmp) ->
         $(domEl).find("#{cell}").css("visibility","visible")
@@ -741,13 +750,22 @@ update: (output, domEl) ->
     # General warning settings. This function is called when a general warning is on,
     # which will turn every not-in-use cell into displaying warning signals
     warning_on = () ->
-        colorChange(".a0", "rgba(256,0,0,1)")
-        $(domEl).find(".Wcontent").css("visibility","visible")
-        $(domEl).find(".id").css("display","none")
+        for element in $(domEl).find(".a0")
+            fun = (elm) -> () ->
+                $elm = $(elm)
+                $elm.find(".Wcontent").css("visibility","visible")
+                $elm.find(".id").css("display","none")
+                colorChange($elm, "rgba(256,0,0,1)")
+            setTimeout (fun(element)), (Math.random() * 1000)
     warning_off = () ->
-        colorChange(".a0", "rgba(10,10,10,1)")
-        $(domEl).find(".Wcontent").css("visibility","hidden")
-        $(domEl).find(".id").css("display","inline-block")
+        for element in $(domEl).find(".a0")
+            fun = (elm) -> () ->
+                $elm = $(elm)
+                $elm.find(".Wcontent").css("visibility","hidden")
+                $elm.find(".id").css("display","inline-block")
+                colorChange($elm, "rgba(10,10,10,1)")
+            setTimeout (fun(element)), (Math.random() * 1000)
+
 #   Processing time
     # This is for outputing the time. Nothing really
     date = new Date()
